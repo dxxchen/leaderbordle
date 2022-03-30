@@ -107,13 +107,13 @@ class Framed(_Variant):
 
 class Heardle(_Variant):
     def __init__(self):
-        self.matcher = re.compile('\#Heardle \#(?P<iteration>\d+)\n+(?P<success>[🔈🔉🔇])(?P<guess_emojis>.*)')
+        self.matcher = re.compile('\#Heardle \#(?P<iteration>\d+)\n+(?P<success>[🔈🔉🔊🔇])(?P<guess_emojis>.*)')
 
     def name(self):
         return 'Heardle'
 
     def url(self):
-        return 'https://framed.wtf/'
+        return 'https://www.heardle.app/'
 
     def emoji(self):
         return '🔉'
@@ -186,6 +186,7 @@ class Wordle(_StandardVariant):
 
 class Semantle(_Variant):
     def __init__(self):
+        self.first_guess_matcher = re.compile('I got Semantle (?P<iteration>\d+) on my first guess!')
         self.matcher = re.compile('I solved Semantle \#(?P<iteration>\d+) in (?P<guesses>\d+) guesses.')
 
     def name(self):
@@ -202,18 +203,24 @@ class Semantle(_Variant):
 
     def parse(self, content):
         match = self.matcher.match(content)
-        if match is None:
-            return None
-
-        iteration = match.group('iteration')
-        success = True # Semantle doesn't allow you to share if you fail
-        guesses = match.group('guesses')
+        if match is not None:
+            iteration = match.group('iteration')
+            success = True # Semantle doesn't allow you to share if you fail
+            guesses = match.group('guesses')
+        else:
+            match = self.first_guess_matcher.match(content)
+            if match is not None:
+                iteration = match.group('iteration')
+                success = True
+                guesses = 1
+            else:
+                return None
 
         return Result(iteration, success, guesses)
 
 
 def get_variants():
-    """Returns all variants supported by Leaderbordle, sorted by popularity."""
+    """Returns all variants supported by Leaderbordle."""
     return [
         Wordle(),
         Worldle(),

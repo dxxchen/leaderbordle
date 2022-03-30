@@ -1,11 +1,14 @@
+import json
+import supabase
+
 from abc import ABC, abstractmethod
 
 
 class VariantStats:
-    def __init__(self, attempts=0, successes=0, distribution={}):
+    def __init__(self, attempts=0, successes=0, distribution=None):
         self.attempts = attempts
         self.successes = successes
-        self.distribution = distribution
+        self.distribution = distribution if distribution is not None else {}
 
 
 class _Store:
@@ -27,11 +30,11 @@ class _Store:
 
 
 class InMemoryStore(_Store):
-    def __init__(self, parsers):
+    def __init__(self, variants):
         # results is a dict of dict of array {variant: {user_id: [results]}}
         self.results = {}
-        for parser in parsers:
-            self.results[parser.name()] = {}
+        for variant in variants:
+            self.results[variant.name()] = {}
 
     def record_result(self, variant, user_id, result):
         # This does not deduplicate results for the same iteration.
@@ -67,5 +70,45 @@ class InMemoryStore(_Store):
             stats.distribution = dict(sorted(unsorted_distribution.items()))
 
             all_stats[variant_name] = stats
+
+        return all_stats
+
+
+class SupabaseStore(_Store):
+    def __init__(self, variants, url, key):
+        self.client = supabase.create_client(url, key)
+
+    def record_result(self, variant, user_id, result):
+        r = self.client.table("Attempts").upsert({
+            'variant': variant,
+            'user_id': user_id,
+            'iteration': result.iteration,
+            'guesses': result.guesses,
+            'success': result.success,
+            'time_secs': result.time_secs,
+            'difficulty': result.difficulty
+            }).execute()
+
+    def read_variant_leaderboard(self, user_ids, variant):
+        pass
+
+    def read_variant_stats(self, user_ids, variant):
+        pass
+
+    def read_user_stats(self, user_id):
+        response = self.client.rpc('read_user_stats', {'uid': user_id})
+        if response.status_code != 200:
+            return None
+
+        all_stats = {}
+        for row in response.json():
+            stats = all_stats.setdefault(row['variant'], VariantStats())
+            stats.attempts += row['total']
+            if row['success']:
+                stats.successes += row['total']
+            stats.distribution[row['guesses']] = stats.distribution.setdefault(row['guesses'], 0) + row['total']
+
+        for stats in all_stats.values():
+            stats.distribution = dict(sorted(stats.distribution.items()))
 
         return all_stats

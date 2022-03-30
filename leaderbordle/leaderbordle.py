@@ -1,13 +1,19 @@
 import discord
+import os
 
 from discord.ext import commands
-from storage import InMemoryStore
+from dotenv import load_dotenv
+from storage import SupabaseStore
 from variants import get_variants
 
+load_dotenv()
 
 bot = commands.Bot(command_prefix=commands.when_mentioned)
 variants = get_variants()
-store = InMemoryStore(variants)
+
+supabase_url = os.getenv('SUPABASE_URL')
+supabase_key = os.getenv('SUPABASE_KEY')
+store = SupabaseStore(variants, supabase_url, supabase_key)
 
 variant_emojis = {v.name() : v.emoji() for v in variants}
 
@@ -62,6 +68,7 @@ async def user(ctx, user: discord.Member):
     embed.title = 'Stats for %s' % user.display_name
 
     for variant_name, variant_stats in stats.items():
+        print(variant_stats.distribution)
         embed.add_field(
             name=variant_emojis[variant_name] + ' ' + variant_name,
             value=
@@ -71,4 +78,5 @@ async def user(ctx, user: discord.Member):
 
     await ctx.send(embed=embed)
 
-bot.run('token')
+bot_token = os.getenv('BOT_TOKEN')
+bot.run(bot_token)
