@@ -71,4 +71,4 @@ async def user(ctx, user: discord.Member):
 
     await ctx.send(embed=embed)
 
-bot.run('OTU4NzAxMDM2NTkwMjE1MTY4.YkRJ6g.P05svilZEgbImplGM4a22qcWba0')
+bot.run('token')
