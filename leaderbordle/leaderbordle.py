@@ -8,7 +8,10 @@ from variants import get_variants
 
 load_dotenv()
 
-bot = commands.Bot(command_prefix=commands.when_mentioned)
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(command_prefix=commands.when_mentioned, intents=intents)
 variants = get_variants()
 
 supabase_url = os.getenv('SUPABASE_URL')
@@ -76,8 +79,7 @@ async def leaders(ctx, days=10):
 
         embed.add_field(
             name=variant_emojis[variant_name] + ' ' + variant_name,
-            value=field_message,
-            inline=True)
+            value=field_message)
 
     await ctx.send(embed=embed)
 
