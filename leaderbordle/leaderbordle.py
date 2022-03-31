@@ -65,7 +65,7 @@ async def leaders(ctx, days=10):
         for i in range(0, min(3, len(leaders))):
             user_id, data = list(leaders.items())[i]
 
-            member = ctx.message.server.get_member(user_id)
+            member = ctx.message.guild.get_member(user_id)
             if member is None:
                 continue
 
