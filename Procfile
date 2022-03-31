@@ -1,1 +1,1 @@
-worker: python leaderbordle.py
+worker: python leaderbordle/leaderbordle.py
