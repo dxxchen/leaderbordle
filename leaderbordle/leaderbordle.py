@@ -79,7 +79,8 @@ async def leaders(ctx, days=10):
 
         embed.add_field(
             name=variant_emojis[variant_name] + ' ' + variant_name,
-            value=field_message)
+            value=field_message,
+            inline=False)
 
     await ctx.send(embed=embed)
 
