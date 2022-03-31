@@ -113,6 +113,23 @@ class BTSHeardle(_Variant):
         return Result(iteration, success, guesses)
 
 
+class Flagle(_StandardVariant):
+    def name(self):
+        return 'Flagle'
+
+    def url(self):
+        return 'https://www.flagle.io/'
+
+    def emoji(self):
+        return '🏁'
+
+    def info(self):
+        return 'Guess the country by parts of its flag.'
+
+    def _matcher(self):
+        return re.compile('\#Flagle \#(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
+
+
 class Framed(_Variant):
     def __init__(self):
         self.matcher = re.compile('Framed \#(?P<iteration>\d+)\n+.*?(?P<guess_emojis>[🟥🟩 ]+)')
@@ -265,6 +282,7 @@ def get_variants():
         Worldle(),
         Semantle(),
         Heardle(),
+        Flagle(),
         BTSHeardle(),
         Framed(),
         Lewdle()]
