@@ -16,6 +16,7 @@ supabase_key = os.getenv('SUPABASE_KEY')
 store = SupabaseStore(variants, supabase_url, supabase_key)
 
 variant_emojis = {v.name() : v.emoji() for v in variants}
+medal_emojis = ['🥇', '🥈', '🥉']
 
 @bot.event
 async def on_ready():
@@ -39,13 +40,41 @@ async def on_message(message):
     if not was_parsed:
         await bot.process_commands(message)
 
-@bot.group()
+@bot.command()
 async def listvariants(ctx):
     embed = discord.Embed()
     embed.title = 'Variants'
     embed.description = ''
     for variant in variants:
         embed.description += '\n**[' + variant.name() + '](' + variant.url() + ")** \t" + variant.info()
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def leaders(ctx, days=10):
+    leaders = store.read_leaders(days, [])
+    if len(leaders) == 0:
+        await ctx.send('There are no leaders. Play more!')
+        return
+
+    embed = discord.Embed()
+    embed.title = 'Leaders (last {days} days)'
+
+    for variant_name, variant_leaders in leaders.items():
+        field_message = ''
+        for i in range(0, min(3, len(leaders))):
+            user_id, data = leaders.items()[i]
+
+            member = ctx.message.server.get_member(user_id)
+            if member is None:
+                continue
+
+            field_message += '%s **%s**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], member.display_name, data['successes'], data['avg_guesses'])
+
+        embed.add_field(
+            name=variant_emojis[variant_name] + ' ' + variant_name,
+            value=field_message,
+            inline=True)
 
     await ctx.send(embed=embed)
 

@@ -105,7 +105,8 @@ class SupabaseStore(_Store):
         for variant in all_leaders:
             all_leaders[variant] = dict(sorted(
                 all_leaders[variant].items(),
-                key=lambda kv: kv[1]['successes'] * 1000000 + kv[1]['avg_guesses'],
+                # Sort by the number of successes descending, then average guesses ascending.
+                key=lambda kv: kv[1]['successes'] * 1000000 + (100000 - kv[1]['avg_guesses']),
                 reverse=True))
 
         return all_leaders
