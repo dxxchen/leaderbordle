@@ -17,7 +17,7 @@ class _Store:
         pass
 
     @abstractmethod
-    def read_variant_leaderboard(self, user_ids, variant):
+    def read_leaders(self, days, variants):
         pass
 
     @abstractmethod
@@ -43,7 +43,7 @@ class InMemoryStore(_Store):
 
         self.results[variant].setdefault(user_id, []).append(result)
 
-    def read_variant_leaderboard(self, user_ids, variant):
+    def read_leaders(self, days, variants):
         pass
 
     def read_variant_stats(self, user_ids, variant):
@@ -89,8 +89,26 @@ class SupabaseStore(_Store):
             'difficulty': result.difficulty
             }).execute()
 
-    def read_variant_leaderboard(self, user_ids, variant):
-        pass
+    def read_leaders(self, days, variants):
+        response = self.client.rpc('leaders', {'days': days, 'variants': variants})
+        if response.status_code != 200:
+            return None
+
+        all_leaders = {}
+        for row in response.json():
+            variant_leaders = all_leaders.setdefault(row['variant'], {})
+            variant_leaders[row['user_id']] = {
+                'successes': row['successes'],
+                'avg_guesses': row['avg_guesses']
+            }
+
+        for variant in all_leaders:
+            all_leaders[variant] = dict(sorted(
+                all_leaders[variant].items(),
+                key=lambda kv: kv[1]['successes'] * 1000000 + kv[1]['avg_guesses'],
+                reverse=True))
+
+        return all_leaders
 
     def read_variant_stats(self, user_ids, variant):
         pass
