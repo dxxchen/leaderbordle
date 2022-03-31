@@ -58,18 +58,18 @@ async def leaders(ctx, days=10):
         return
 
     embed = discord.Embed()
-    embed.title = 'Leaders (last {days} days)'
+    embed.title = f'Leaders (last {days} days)'
 
     for variant_name, variant_leaders in leaders.items():
         field_message = ''
         for i in range(0, min(3, len(variant_leaders))):
             user_id, data = list(variant_leaders.items())[i]
 
-            member = ctx.message.guild.get_member(user_id)
-            if member is None:
-                continue
+            # member = ctx.message.guild.get_member(user_id)
+            # if member is None:
+            #     continue
 
-            field_message += '%s **%s**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], member.display_name, data['successes'], data['avg_guesses'])
+            field_message += '%s **%d**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], user_id, data['successes'], data['avg_guesses'])
 
         if field_message == '':
             continue
