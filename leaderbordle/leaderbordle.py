@@ -68,9 +68,9 @@ async def leaders(ctx, days=10):
         for i in range(0, min(3, len(variant_leaders))):
             user_id, data = list(variant_leaders.items())[i]
 
-            # member = ctx.message.guild.get_member(user_id)
-            # if member is None:
-            #     continue
+            member = ctx.message.guild.get_member(user_id)
+            if member is None:
+                continue
 
             field_message += '%s **%d**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], user_id, data['successes'], data['avg_guesses'])
 
