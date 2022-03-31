@@ -48,7 +48,7 @@ async def listvariants(ctx):
     embed.title = 'Variants'
     embed.description = ''
     for variant in variants.values():
-        embed.description += '\n**[' + variant.name() + '](' + variant.url() + ")** \t" + variant.info()
+        embed.description += '\n**%s** %s' % (variant.linkified_title(), variant.info())
 
     await ctx.send(embed=embed)
 
@@ -77,7 +77,7 @@ async def leaders(ctx, days=10):
             continue
 
         embed.add_field(
-            name=variants[variant_name].display_name(),
+            name=variants[variant_name].title(),
             value=field_message,
             inline=True)
 
@@ -103,7 +103,7 @@ async def user(ctx, user: discord.Member):
 
     for variant_name, variant_stats in stats.items():
         embed.add_field(
-            name=variants[variant_name].display_name(),
+            name=variants[variant_name].title(),
             value=
                 'Attempts: %d/%d (%.f%%)\n' % (variant_stats.successes, variant_stats.attempts, variant_stats.successes / variant_stats.attempts * 100)
                     + 'Avg. guesses: %.2f' % (sum(k * v for k, v in variant_stats.distribution.items()) / sum(v for v in variant_stats.distribution.values())),

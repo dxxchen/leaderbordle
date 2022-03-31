@@ -23,7 +23,11 @@ class _Variant(ABC):
         """Returns an info string describing the variant."""
         return 'No information provided.'
 
-    def display_name(self):
+    def title(self):
+        """Returns a string that contains the emoji and name."""
+        return '%s %s' % (self.emoji(), self.name())
+
+    def linkified_title(self):
         """Returns a Discord-formatted string that contains the emoji and hyperlinked name."""
         return '%s [%s](%s)' % (self.emoji(), self.name(), self.url())
 
