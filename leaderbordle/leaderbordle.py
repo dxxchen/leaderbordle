@@ -16,9 +16,8 @@ variants = get_variants()
 
 supabase_url = os.getenv('SUPABASE_URL')
 supabase_key = os.getenv('SUPABASE_KEY')
-store = SupabaseStore(variants, supabase_url, supabase_key)
+store = SupabaseStore(supabase_url, supabase_key)
 
-variant_emojis = {v.name() : v.emoji() for v in variants}
 medal_emojis = ['🥇', '🥈', '🥉']
 
 @bot.event
@@ -29,7 +28,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     was_parsed = False
-    for variant in variants:
+    for variant in variants.values():
         result = variant.parse(message.content)
         if result is None:
             continue
@@ -48,7 +47,7 @@ async def listvariants(ctx):
     embed = discord.Embed()
     embed.title = 'Variants'
     embed.description = ''
-    for variant in variants:
+    for variant in variants.values():
         embed.description += '\n**[' + variant.name() + '](' + variant.url() + ")** \t" + variant.info()
 
     await ctx.send(embed=embed)
@@ -78,7 +77,7 @@ async def leaders(ctx, days=10):
             continue
 
         embed.add_field(
-            name=variant_emojis[variant_name] + ' ' + variant_name,
+            name=variants[variant_name].display_name(),
             value=field_message,
             inline=True)
 
@@ -103,9 +102,8 @@ async def user(ctx, user: discord.Member):
     embed.title = 'Stats for %s' % user.display_name
 
     for variant_name, variant_stats in stats.items():
-        print(variant_stats.distribution)
         embed.add_field(
-            name=variant_emojis[variant_name] + ' ' + variant_name,
+            name=variants[variant_name].display_name(),
             value=
                 'Attempts: %d/%d (%.f%%)\n' % (variant_stats.successes, variant_stats.attempts, variant_stats.successes / variant_stats.attempts * 100)
                     + 'Avg. guesses: %.2f' % (sum(k * v for k, v in variant_stats.distribution.items()) / sum(v for v in variant_stats.distribution.values())),

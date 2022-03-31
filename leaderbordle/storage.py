@@ -75,7 +75,7 @@ class InMemoryStore(_Store):
 
 
 class SupabaseStore(_Store):
-    def __init__(self, variants, url, key):
+    def __init__(self, url, key):
         self.client = supabase.create_client(url, key)
 
     def record_result(self, variant, user_id, result):

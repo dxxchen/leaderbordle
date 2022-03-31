@@ -23,6 +23,10 @@ class _Variant(ABC):
         """Returns an info string describing the variant."""
         return 'No information provided.'
 
+    def display_name(self):
+        """Returns a Discord-formatted string that contains the emoji and hyperlinked name."""
+        return '%s [%s](%s)' % (self.emoji(), self.name(), self.url())
+
     @abstractmethod
     def parse(self, content):
         """Parses message content into a Result.
@@ -75,6 +79,34 @@ class _StandardVariant(_Variant):
             success,
             guesses,
             difficulty=difficulty)
+
+
+class BTSHeardle(_Variant):
+    def __init__(self):
+        self.matcher = re.compile('\#BTSHeardle(?P<iteration>\d+)\s+(?P<guesses>\d+|X)/\d')
+
+    def name(self):
+        return 'BTSHeardle'
+
+    def url(self):
+        return 'https://www.bts-heardle.app/'
+
+    def emoji(self):
+        return '💜'
+
+    def info(self):
+        return 'Guess the BTS song of the day in 7 tries.'
+
+    def parse(self, content):
+        match = self.matcher.match(content)
+        if match is None:
+            return None
+
+        iteration = match.group('iteration')
+        success = match.group('guesses') != 'X'
+        guesses = match.group('guesses') if success else 7
+
+        return Result(iteration, success, guesses)
 
 
 class Framed(_Variant):
@@ -217,38 +249,14 @@ class Semantle(_Variant):
                 return None
 
         return Result(iteration, success, guesses)
-    
-class BTSHeardle(_Variant):
-    def __init__(self):
-        self.matcher = re.compile('\#BTSHeardle(?P<iteration>\d+)\s+(?P<guesses>\d+|X)/\d')
-
-    def name(self):
-        return 'BTSHeardle'
-
-    def url(self):
-        return 'https://www.bts-heardle.app/'
-
-    def emoji(self):
-        return '💜'
-
-    def info(self):
-        return 'Guess the BTS song of the day in 7 tries.'
-
-    def parse(self, content):
-        match = self.matcher.match(content)
-        if match is None:
-            return None
-
-        iteration = match.group('iteration')
-        success = match.group('guesses') != 'X'
-        guesses = match.group('guesses') if success else 7
-
-        return Result(iteration, success, guesses)
 
 
 def get_variants():
-    """Returns all variants supported by Leaderbordle."""
-    return [
+    """Returns a dict {name, variant} of all variants supported by Leaderbordle.
+
+    The returned list should be ordered by popularity.
+    """
+    variants = [
         Wordle(),
         Worldle(),
         Semantle(),
@@ -256,3 +264,5 @@ def get_variants():
         BTSHeardle(),
         Framed(),
         Lewdle()]
+
+    return {v.name() : v for v in variants}
