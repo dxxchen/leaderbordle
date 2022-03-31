@@ -45,7 +45,7 @@ async def listvariants(ctx):
     embed.title = 'Variants'
     embed.description = ''
     for variant in variants:
-        embed.description += '\n **[' + variant.name() + '](' + variant.url() + ")** \t" + variant.info()
+        embed.description += '\n**[' + variant.name() + '](' + variant.url() + ")** \t" + variant.info()
 
     await ctx.send(embed=embed)
 
