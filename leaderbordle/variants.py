@@ -217,6 +217,33 @@ class Semantle(_Variant):
                 return None
 
         return Result(iteration, success, guesses)
+    
+class BTSHeardle(_Variant):
+    def __init__(self):
+        self.matcher = re.compile('\#BTSHeardle(?P<iteration>\d+)\s+(?P<guesses>\d+|X)/\d')
+
+    def name(self):
+        return 'BTSHeardle'
+
+    def url(self):
+        return 'https://www.bts-heardle.app/'
+
+    def emoji(self):
+        return '💜'
+
+    def info(self):
+        return 'Guess the BTS song of the day in 7 tries.'
+
+    def parse(self, content):
+        match = self.matcher.match(content)
+        if match is None:
+            return None
+
+        iteration = match.group('iteration')
+        success = match.group('guesses') != 'X'
+        guesses = match.group('guesses') if success else 7
+
+        return Result(iteration, success, guesses)
 
 
 def get_variants():
@@ -226,5 +253,6 @@ def get_variants():
         Worldle(),
         Semantle(),
         Heardle(),
+        BTSHeardle(),
         Framed(),
         Lewdle()]
