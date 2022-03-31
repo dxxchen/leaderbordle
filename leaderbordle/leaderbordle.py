@@ -72,7 +72,7 @@ async def leaders(ctx, days=10):
             if member is None:
                 continue
 
-            field_message += '%s **%d**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], member.display_name, data['successes'], data['avg_guesses'])
+            field_message += '%s **%s**: %d solves (%.2f avg. guesses)\n' % (medal_emojis[i], member.display_name, data['successes'], data['avg_guesses'])
 
         if field_message == '':
             continue
