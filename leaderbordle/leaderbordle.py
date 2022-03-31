@@ -63,7 +63,7 @@ async def leaders(ctx, days=10):
     for variant_name, variant_leaders in leaders.items():
         field_message = ''
         for i in range(0, min(3, len(leaders))):
-            user_id, data = list(leaders.items()[i])
+            user_id, data = list(leaders.items())[i]
 
             member = ctx.message.server.get_member(user_id)
             if member is None:
