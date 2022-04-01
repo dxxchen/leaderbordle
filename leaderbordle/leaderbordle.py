@@ -1,5 +1,6 @@
 import discord
 import os
+import sys
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -54,26 +55,60 @@ async def listvariants(ctx):
 
 @bot.command()
 async def leaders(ctx, days=10):
+    if (days < 1):
+        await ctx.send('The number of days must be greater than or equal to 1.')
+        return
+    if (days > 30)
+        await ctx.send('The number of days must be less than or equal to 30.')
+
     leaders = store.read_leaders(days, [])
     if len(leaders) == 0:
         await ctx.send('There are no leaders. Play more!')
         return
 
     embed = discord.Embed()
-    embed.title = f'Leaders (last {days} days)'
+    embed.title = 'Leaders (last %d day%s)' % (days, ('s' if days > 1 else ''))
 
     for variant_name, variant_leaders in leaders.items():
         field_message = ''
-        for i in range(0, min(3, len(variant_leaders))):
-            user_id, data = list(variant_leaders.items())[i]
+        medals_awarded = 0
+        next_medal = 0
+        num_tied = 1
 
+        last_successes = sys.maxsize
+        last_guesses = 0
+
+        for user_id, data in variant_leaders:
             member = ctx.message.guild.get_member(user_id)
             if member is None:
                 continue
 
-            field_message += '%s **%s**\n⠀⠀ %d win%s / %.2f avg.\n' % (medal_emojis[i], member.display_name, data['successes'], ('s' if data['successes'] > 1 else ''), data['avg_guesses'])
+            field_message += '%s **%s**\n⠀⠀ %d win%s / %.2f avg.\n' % (
+                medal_emojis[next_medal],
+                member.display_name,
+                data['successes'],
+                ('s' if data['successes'] > 1 else ''),
+                data['avg_guesses'])
 
-        if field_message == '':
+            medals_awarded += 1
+
+            # Only move on to the next medal if the number of successes is lower or the number of
+            # guesses is higher than the previous medal holder.
+            if data['successes'] < last_successes or data['avg_guesses'] > last_guesses:
+                # Terminate the loop if all tied users have been awarded medals and there have
+                # been at least 3 medals awarded.
+                if medals_awarded > 2:
+                    break
+
+                last_successes = data['successes']
+                last_guesses = data['last_guesses']
+
+                next_medal += num_tied
+                num_tied = 1
+            else
+                num_tied += 1
+
+        if medals_awarded = 0:
             continue
 
         embed.add_field(
