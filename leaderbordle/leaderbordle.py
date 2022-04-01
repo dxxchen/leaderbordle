@@ -102,7 +102,7 @@ async def leaders(ctx, days=10):
                     break
 
                 last_successes = data['successes']
-                last_guesses = data['last_guesses']
+                last_guesses = data['avg_guesses']
 
                 next_medal += num_tied
                 num_tied = 1
