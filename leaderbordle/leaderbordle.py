@@ -79,7 +79,7 @@ async def leaders(ctx, days=10):
         last_successes = sys.maxsize
         last_guesses = 0
 
-        for user_id, data in variant_leaders:
+        for user_id, data in variant_leaders.items():
             member = ctx.message.guild.get_member(user_id)
             if member is None:
                 continue
