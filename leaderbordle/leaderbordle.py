@@ -106,7 +106,7 @@ async def leaders(ctx, days=10):
 
                 next_medal += num_tied
                 num_tied = 1
-            else
+            else:
                 num_tied += 1
 
         if medals_awarded = 0:
