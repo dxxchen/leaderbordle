@@ -58,8 +58,9 @@ async def leaders(ctx, days=10):
     if (days < 1):
         await ctx.send('The number of days must be greater than or equal to 1.')
         return
-    if (days > 30)
+    if (days > 30):
         await ctx.send('The number of days must be less than or equal to 30.')
+        return
 
     leaders = store.read_leaders(days, [])
     if len(leaders) == 0:
