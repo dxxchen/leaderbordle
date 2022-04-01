@@ -109,7 +109,7 @@ async def leaders(ctx, days=10):
             else:
                 num_tied += 1
 
-        if medals_awarded = 0:
+        if medals_awarded == 0:
             continue
 
         embed.add_field(
