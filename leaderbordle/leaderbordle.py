@@ -84,7 +84,7 @@ async def leaders(ctx, days=10):
             if member is None:
                 continue
 
-            field_message += '%s **%s**\n⠀⠀ %d win%s / %.2f avg.\n' % (
+            field_message += '%s **%s**\nㅤㅤ%d win%s / %.2f avg.\n' % (
                 medal_emojis[next_medal],
                 member.display_name,
                 data['successes'],
