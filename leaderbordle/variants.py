@@ -134,6 +134,9 @@ class Chrono(_Variant):
         self._medals = ['🥇', '🥈', '🥉']
         self.matcher = re.compile('Chrono \#(?P<iteration>\d+).*\n+(?P<medal>[🥇🥈🥉😬]).*\n⏱:\s+(?P<time_secs>\d+(\.\d+)?)')
 
+    def name(self):
+        return 'Chrono'
+
     def url(self):
         return 'https://chrono.quest/'
 
