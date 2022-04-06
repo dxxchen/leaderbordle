@@ -203,40 +203,6 @@ class Lewdle(_StandardVariant):
         return re.compile('Lewdle \D+(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
 
 
-class Worldle(_StandardVariant):
-    def name(self):
-        return 'Worldle'
-
-    def url(self):
-        return 'https://worldle.teuteuf.fr/'
-
-    def emoji(self):
-        return '🌎'
-
-    def info(self):
-        return 'Guess a country by its shape.'
-
-    def _matcher(self):
-        return re.compile('\#Worldle \#(?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>)', re.MULTILINE)
-
-
-class Wordle(_StandardVariant):
-    def name(self):
-        return 'Wordle'
-
-    def url(self):
-        return 'https://www.nytimes.com/games/wordle/index.html'
-
-    def emoji(self):
-        return '🟩'
-
-    def info(self):
-        return 'The original Wordle.'
-
-    def _matcher(self):
-        return re.compile('Wordle (?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>\*?)')
-
-
 class Semantle(_Variant):
     def __init__(self):
         self.first_guess_matcher = re.compile('I got Semantle (?P<iteration>\d+) on my first guess!')
@@ -272,6 +238,71 @@ class Semantle(_Variant):
         return Result(iteration, success, guesses)
 
 
+class Worldle(_StandardVariant):
+    def name(self):
+        return 'Worldle'
+
+    def url(self):
+        return 'https://worldle.teuteuf.fr/'
+
+    def emoji(self):
+        return '🌎'
+
+    def info(self):
+        return 'Guess a country by its shape.'
+
+    def _matcher(self):
+        return re.compile('\#Worldle \#(?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>)', re.MULTILINE)
+
+
+class Wordle(_StandardVariant):
+    def name(self):
+        return 'Wordle'
+
+    def url(self):
+        return 'https://www.nytimes.com/games/wordle/index.html'
+
+    def emoji(self):
+        return '🟩'
+
+    def info(self):
+        return 'The original Wordle.'
+
+    def _matcher(self):
+        return re.compile('Wordle (?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>\*?)')
+
+class Yeardle(_Variant):
+    def __init__(self):
+        self.matcher = re.compile('\#Yeardle \#(?P<iteration>\d+)\n+(?P<guess_emojis>.*)')
+
+    def name(self):
+        return 'Yeardle'
+
+    def url(self):
+        return 'https://histordle.com/yeardle/'
+
+    def emoji(self):
+        return '⌛'
+
+    def info(self):
+        return 'Guess a year from three historical events.'
+
+    def parse(self, content):
+        match = self.matcher.match(content)
+        if match is None:
+            return None
+
+        iteration = match.group('iteration')
+        guesses = match.group('guess_emojis').find('🟩') + 1
+        if guesses > 0:
+            success = true
+        else:
+            guesses = 8
+            success = false
+
+        return Result(iteration, success, guesses)
+
+
 def get_variants():
     """Returns a dict {name, variant} of all variants supported by Leaderbordle.
 
@@ -285,6 +316,7 @@ def get_variants():
         Flagle(),
         BTSHeardle(),
         Framed(),
+        Yeardle(),
         Lewdle()]
 
     return {v.name() : v for v in variants}
