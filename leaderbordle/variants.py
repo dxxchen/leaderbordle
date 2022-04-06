@@ -2,6 +2,15 @@ import re
 
 from abc import ABC, abstractmethod
 from common import Result
+from datetime import date, timedelta
+
+
+class VariantDetails:
+    def __init__(self, first_iteration_date, is_timed=False, is_failable=True):
+        self.first_iteration_date = first_iteration_date
+        self.is_timed = is_timed
+        self.is_failable = is_failable
+
 
 class _Variant(ABC):
     """An abstract Wordle variant."""
@@ -30,6 +39,10 @@ class _Variant(ABC):
     def linkified_title(self):
         """Returns a Discord-formatted string that contains the emoji and hyperlinked name."""
         return '%s [%s](%s)' % (self.emoji(), self.name(), self.url())
+
+    def details(self):
+        """Returns the details of this variant."""
+        pass
 
     @abstractmethod
     def parse(self, content):
@@ -101,6 +114,9 @@ class BTSHeardle(_Variant):
     def info(self):
         return 'Guess the BTS song of the day in 7 tries.'
 
+    def details(self):
+        return VariantDetails(date(2022, 03, 20))
+
     def parse(self, content):
         match = self.matcher.match(content)
         if match is None:
@@ -111,6 +127,38 @@ class BTSHeardle(_Variant):
         guesses = match.group('guesses') if success else 7
 
         return Result(iteration, success, guesses)
+
+
+class Chrono(_Variant):
+    def __init__(self):
+        self._medals = ['🥇', '🥈', '🥉']
+        self.matcher = re.compile('Chrono \#(?P<iteration>\d+).*\n+(?P<medal>[🥇🥈🥉😬]).*\n⏱:\s+(?P<time_secs>\d+(\.\d+)?)')
+
+    def url(self):
+        return 'https://chrono.quest/'
+
+    def emoji(self):
+        return '⏱'
+
+    def info(self):
+        'Put 6 events in chronological order.'
+
+    def details(self):
+        return VariantDetails(
+            date(2022, 03, 02),
+            is_timed=True)
+
+    def parse(self, content):
+        match = self.matcher.match(content)
+        if match is None:
+            return
+
+        iteration = match.group('iteration')
+        success = match.group('medal') != '😬'
+        guesses = self._medals.index(match.group('medal')) + 1 if success else 3
+        time_secs = float(match.group('time_secs'))
+
+        return Result(iteration, success, guesses, time_secs=time_secs)
 
 
 class Flagle(_StandardVariant):
@@ -125,6 +173,15 @@ class Flagle(_StandardVariant):
 
     def info(self):
         return 'Guess the country by parts of its flag.'
+
+    def details(self):
+        # Note that although the Flagle code says the first date is 2022-02-21 [1], its first
+        # iteration is numbered 0 [2]. For simplicity, we will just say that it started on
+        # 2022-02-22 instead (which would be iteration 1).
+        #
+        # [1] https://github.com/ryanbarouki/flagle/blob/1ec1d12cd141a3c0e1bd3d4f720fb33eff8fd60a/src/components/Share.js#L7
+        # [2] https://github.com/ryanbarouki/flagle/blob/1ec1d12cd141a3c0e1bd3d4f720fb33eff8fd60a/src/components/Share.js#L30
+        return VariantDetails(date(2022, 02, 22))
 
     def _matcher(self):
         return re.compile('\#Flagle \#(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
@@ -145,6 +202,9 @@ class Framed(_Variant):
 
     def info(self):
         return 'Guess a movie from six still frames.'
+
+    def details(self):
+        return VariantDetails(date(2022, 03, 12))
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -174,6 +234,9 @@ class Heardle(_Variant):
     def info(self):
         return 'Guess a song from its intro.'
 
+    def details(self):
+        return VariantDetails(date(2022, 02, 26))
+
     def parse(self, content):
         match = self.matcher.match(content)
         if match is None:
@@ -199,6 +262,9 @@ class Lewdle(_StandardVariant):
     def info(self):
         return 'Just like Wordle but with rude words.'
 
+    def details(self):
+        return VariantDetails(date(2022, 01, 19))
+
     def _matcher(self):
         return re.compile('Lewdle \D+(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
 
@@ -219,6 +285,11 @@ class Semantle(_Variant):
 
     def info(self):
         return 'Guess a word by its semantic similarity to others.'
+
+    def details(self):
+        return VariantDetails(
+            date(2022, 01, 30)
+            is_failable=False)
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -251,6 +322,9 @@ class Worldle(_StandardVariant):
     def info(self):
         return 'Guess a country by its shape.'
 
+    def details(self):
+        return VariantDetails(date(2022, 01, 22))
+
     def _matcher(self):
         return re.compile('\#Worldle \#(?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>)', re.MULTILINE)
 
@@ -267,6 +341,9 @@ class Wordle(_StandardVariant):
 
     def info(self):
         return 'The original Wordle.'
+
+    def details(self):
+        return VariantDetails(date(2021, 06, 19))
 
     def _matcher(self):
         return re.compile('Wordle (?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>\*?)')
@@ -287,6 +364,9 @@ class Yeardle(_Variant):
 
     def info(self):
         return 'Guess a year from three historical events.'
+
+    def details(self):
+        return VariantDetails(date(2022, 03, 23))
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -314,10 +394,11 @@ def get_variants():
         Worldle(),
         Semantle(),
         Heardle(),
+        Framed(),
         Flagle(),
         BTSHeardle(),
-        Framed(),
         Yeardle(),
+        Chrono(),
         Lewdle()]
 
     return {v.name() : v for v in variants}
