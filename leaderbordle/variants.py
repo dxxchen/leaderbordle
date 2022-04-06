@@ -93,7 +93,7 @@ class _StandardVariant(_Variant):
 
         iteration = match.group('iteration')
         success = match.group('guesses') != 'X'
-        guesses = match.group('guesses') if success else max_guesses
+        guesses = match.group('guesses') if success else self.max_guesses
         difficulty = 'hard' if match.group('hard') == '*' else ''
 
         return Result(
