@@ -5,10 +5,11 @@ from abc import ABC, abstractmethod
 
 
 class VariantStats:
-    def __init__(self, attempts=0, successes=0, distribution=None):
+    def __init__(self, attempts=0, successes=0, guess_distribution=None, total_time_secs=0):
         self.attempts = attempts
         self.successes = successes
-        self.distribution = distribution if distribution is not None else {}
+        self.guess_distribution = guess_distribution if guess_distribution is not None else {}
+        self.total_time_secs = total_time_secs
 
 
 class _Store:
@@ -67,7 +68,7 @@ class InMemoryStore(_Store):
             for result in variant_results:
                 unsorted_distribution[result.guesses] = unsorted_distribution.setdefault(result.guesses, 0) + 1
 
-            stats.distribution = dict(sorted(unsorted_distribution.items()))
+            stats.guess_distribution = dict(sorted(unsorted_distribution.items()))
 
             all_stats[variant_name] = stats
 
@@ -125,9 +126,11 @@ class SupabaseStore(_Store):
             stats.attempts += row['total']
             if row['success']:
                 stats.successes += row['total']
-            stats.distribution[row['guesses']] = stats.distribution.setdefault(row['guesses'], 0) + row['total']
+            stats.guess_distribution[row['guesses']] = stats.guess_distribution.setdefault(row['guesses'], 0) + row['total']
+            if row['time_secs']:
+                stats.total_time_secs += row['time_secs']
 
         for stats in all_stats.values():
-            stats.distribution = dict(sorted(stats.distribution.items()))
+            stats.guess_distribution = dict(sorted(stats.guess_distribution.items()))
 
         return all_stats

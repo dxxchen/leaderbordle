@@ -138,11 +138,26 @@ async def user(ctx, user: discord.Member):
     embed.title = 'Stats for %s' % user.display_name
 
     for variant_name, variant_stats in stats.items():
+        value = ''
+        variant = variants[variant_name]
+
+        if variant.details().is_failable():
+            value += 'Attempts: %d/%d (%.f%%)\n' % (
+                variant_stats.successes,
+                variant_stats.attempts,
+                variant_stats.successes / variant_stats.attempts * 100)
+        else:
+            value += 'Wins: %d\n' % variant_stats.successes
+
+        value += 'Avg. guesses: %.2f\n' % (
+            sum(k * v for k, v in variant_stats.guess_distribution.items()) / sum(v for v in variant_stats.guess_distribution.values()))
+
+        if variant.details().is_timed():
+            value += 'Avg. time: %.1f\n' % (variant_stats.total_time_secs / variant_stats.attempts)
+
         embed.add_field(
             name=variants[variant_name].title(),
-            value=
-                'Attempts: %d/%d (%.f%%)\n' % (variant_stats.successes, variant_stats.attempts, variant_stats.successes / variant_stats.attempts * 100)
-                    + 'Avg. guesses: %.2f' % (sum(k * v for k, v in variant_stats.distribution.items()) / sum(v for v in variant_stats.distribution.values())),
+            value=value,
             inline=True)
 
     await ctx.send(embed=embed)
