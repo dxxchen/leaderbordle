@@ -75,11 +75,16 @@ class _StandardVariant(_Variant):
 
     def __init__(self):
         self.matcher = self._matcher()
+        self.max_guesses = self._max_guesses()
 
     @abstractmethod
     def _matcher(self):
         """Returns an re.Pattern that matches an attempt."""
         pass
+
+    def _max_guesses(self):
+        """Returns the maximum number of guesses allowed."""
+        return 6
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -88,7 +93,7 @@ class _StandardVariant(_Variant):
 
         iteration = match.group('iteration')
         success = match.group('guesses') != 'X'
-        guesses = match.group('guesses') if success else 6
+        guesses = match.group('guesses') if success else max_guesses
         difficulty = 'hard' if match.group('hard') == '*' else ''
 
         return Result(
@@ -312,6 +317,29 @@ class Semantle(_Variant):
         return Result(iteration, success, guesses)
 
 
+class Werdel(_StandardVariant):
+    def _max_guesses(self):
+        return 8
+
+    def name(self):
+        return 'wɜːdəl'
+
+    def url(self):
+        return 'https://bennw.github.io/werdel/#daily'
+
+    def emoji(self):
+        return '💬'
+
+    def info(self):
+        return 'Wordle using the International Phonetic Alphabet and British pronunciation.'
+
+    def details(self):
+        return VariantDetails(date(2022, 2, 12))
+
+    def _matcher(self):
+        return re.compile('Daily wɜːdəl \#(?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>)')
+
+
 class Worldle(_StandardVariant):
     def name(self):
         return 'Worldle'
@@ -402,6 +430,7 @@ def get_variants():
         BTSHeardle(),
         Yeardle(),
         Chrono(),
-        Lewdle()]
+        Lewdle(),
+        Werdel()]
 
     return {v.name() : v for v in variants}
