@@ -288,7 +288,7 @@ class Semantle(_Variant):
 
     def details(self):
         return VariantDetails(
-            date(2022, 1, 30)
+            date(2022, 1, 30),
             is_failable=False)
 
     def parse(self, content):
