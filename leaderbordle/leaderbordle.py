@@ -141,7 +141,7 @@ async def user(ctx, user: discord.Member):
         value = ''
         variant = variants[variant_name]
 
-        if variant.details().is_failable():
+        if variant.details().is_failable:
             value += 'Attempts: %d/%d (%.f%%)\n' % (
                 variant_stats.successes,
                 variant_stats.attempts,
@@ -152,7 +152,7 @@ async def user(ctx, user: discord.Member):
         value += 'Avg. guesses: %.2f\n' % (
             sum(k * v for k, v in variant_stats.guess_distribution.items()) / sum(v for v in variant_stats.guess_distribution.values()))
 
-        if variant.details().is_timed():
+        if variant.details().is_timed:
             value += 'Avg. time: %.1f\n' % (variant_stats.total_time_secs / variant_stats.attempts)
 
         embed.add_field(
