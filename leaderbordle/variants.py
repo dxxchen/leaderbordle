@@ -115,7 +115,7 @@ class BTSHeardle(_Variant):
         return 'Guess the BTS song of the day in 7 tries.'
 
     def details(self):
-        return VariantDetails(date(2022, 03, 20))
+        return VariantDetails(date(2022, 3, 20))
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -145,7 +145,7 @@ class Chrono(_Variant):
 
     def details(self):
         return VariantDetails(
-            date(2022, 03, 02),
+            date(2022, 3, 2),
             is_timed=True)
 
     def parse(self, content):
@@ -181,7 +181,7 @@ class Flagle(_StandardVariant):
         #
         # [1] https://github.com/ryanbarouki/flagle/blob/1ec1d12cd141a3c0e1bd3d4f720fb33eff8fd60a/src/components/Share.js#L7
         # [2] https://github.com/ryanbarouki/flagle/blob/1ec1d12cd141a3c0e1bd3d4f720fb33eff8fd60a/src/components/Share.js#L30
-        return VariantDetails(date(2022, 02, 22))
+        return VariantDetails(date(2022, 2, 22))
 
     def _matcher(self):
         return re.compile('\#Flagle \#(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
@@ -204,7 +204,7 @@ class Framed(_Variant):
         return 'Guess a movie from six still frames.'
 
     def details(self):
-        return VariantDetails(date(2022, 03, 12))
+        return VariantDetails(date(2022, 3, 12))
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -235,7 +235,7 @@ class Heardle(_Variant):
         return 'Guess a song from its intro.'
 
     def details(self):
-        return VariantDetails(date(2022, 02, 26))
+        return VariantDetails(date(2022, 2, 26))
 
     def parse(self, content):
         match = self.matcher.match(content)
@@ -263,7 +263,7 @@ class Lewdle(_StandardVariant):
         return 'Just like Wordle but with rude words.'
 
     def details(self):
-        return VariantDetails(date(2022, 01, 19))
+        return VariantDetails(date(2022, 1, 19))
 
     def _matcher(self):
         return re.compile('Lewdle \D+(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
@@ -288,7 +288,7 @@ class Semantle(_Variant):
 
     def details(self):
         return VariantDetails(
-            date(2022, 01, 30)
+            date(2022, 1, 30)
             is_failable=False)
 
     def parse(self, content):
@@ -323,7 +323,7 @@ class Worldle(_StandardVariant):
         return 'Guess a country by its shape.'
 
     def details(self):
-        return VariantDetails(date(2022, 01, 22))
+        return VariantDetails(date(2022, 1, 22))
 
     def _matcher(self):
         return re.compile('\#Worldle \#(?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>)', re.MULTILINE)
@@ -343,7 +343,7 @@ class Wordle(_StandardVariant):
         return 'The original Wordle.'
 
     def details(self):
-        return VariantDetails(date(2021, 06, 19))
+        return VariantDetails(date(2021, 6, 19))
 
     def _matcher(self):
         return re.compile('Wordle (?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>\*?)')
@@ -366,7 +366,7 @@ class Yeardle(_Variant):
         return 'Guess a year from three historical events.'
 
     def details(self):
-        return VariantDetails(date(2022, 03, 23))
+        return VariantDetails(date(2022, 3, 23))
 
     def parse(self, content):
         match = self.matcher.match(content)
