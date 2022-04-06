@@ -271,6 +271,7 @@ class Wordle(_StandardVariant):
     def _matcher(self):
         return re.compile('Wordle (?P<iteration>\d+) (?P<guesses>\d+|X)/\d(?P<hard>\*?)')
 
+    
 class Yeardle(_Variant):
     def __init__(self):
         self.matcher = re.compile('\#Yeardle \#(?P<iteration>\d+)\n+(?P<guess_emojis>.*)')
@@ -295,10 +296,10 @@ class Yeardle(_Variant):
         iteration = match.group('iteration')
         guesses = match.group('guess_emojis').find('🟩') + 1
         if guesses > 0:
-            success = true
+            success = True
         else:
             guesses = 8
-            success = false
+            success = False
 
         return Result(iteration, success, guesses)
 
