@@ -153,7 +153,7 @@ async def user(ctx, user: discord.Member):
             sum(k * v for k, v in variant_stats.guess_distribution.items()) / sum(v for v in variant_stats.guess_distribution.values()))
 
         if variant.details().is_timed:
-            value += 'Avg. time: %.1f\n' % (variant_stats.total_time_secs / variant_stats.attempts)
+            value += 'Avg. time: %.1fs\n' % (variant_stats.total_time_secs / variant_stats.attempts)
 
         embed.add_field(
             name=variants[variant_name].title(),
