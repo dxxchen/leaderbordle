@@ -149,8 +149,9 @@ async def user(ctx, user: discord.Member):
         else:
             value += 'Wins: %d\n' % variant_stats.successes
 
-        value += 'Avg. guesses: %.2f\n' % (
-            sum(k * v for k, v in variant_stats.guess_distribution.items()) / sum(v for v in variant_stats.guess_distribution.values()))
+        if variant.details().has_guesses:
+            value += 'Avg. guesses: %.2f\n' % (
+                sum(k * v for k, v in variant_stats.guess_distribution.items()) / sum(v for v in variant_stats.guess_distribution.values()))
 
         if variant.details().is_timed:
             value += 'Avg. time: %.1fs\n' % (variant_stats.total_time_secs / variant_stats.attempts)
