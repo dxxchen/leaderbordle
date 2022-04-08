@@ -17,7 +17,7 @@ variants = get_variants()
 
 supabase_url = os.getenv('SUPABASE_URL')
 supabase_key = os.getenv('SUPABASE_KEY')
-store = SupabaseStore(supabase_url, supabase_key)
+store = SupabaseStore(variants, supabase_url, supabase_key)
 
 medal_emojis = ['🥇', '🥈', '🥉']
 

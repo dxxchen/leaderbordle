@@ -76,11 +76,12 @@ class InMemoryStore(_Store):
 
 
 class SupabaseStore(_Store):
-    def __init__(self, url, key):
-        self.client = supabase.create_client(url, key)
+    def __init__(self, variants, url, key):
+        self._variants = variants
+        self._client = supabase.create_client(url, key)
 
     def record_result(self, variant, user_id, result):
-        r = self.client.table("Attempts").upsert({
+        r = self._client.table("Attempts").upsert({
             'variant': variant,
             'user_id': user_id,
             'iteration': result.iteration,
@@ -91,7 +92,7 @@ class SupabaseStore(_Store):
             }).execute()
 
     def read_leaders(self, days, variants):
-        response = self.client.rpc('leaders', {'days': days, 'variants': variants})
+        response = self._client.rpc('leaders', {'days': days, 'variants': variants})
         if response.status_code != 200:
             return None
 
@@ -100,14 +101,18 @@ class SupabaseStore(_Store):
             variant_leaders = all_leaders.setdefault(row['variant'], {})
             variant_leaders[row['user_id']] = {
                 'successes': row['successes'],
-                'avg_guesses': row['avg_guesses']
+                'avg_guesses': row['avg_guesses'] if row['avg_guesses'] is not None else 0.,
+                'avg_time_secs': row['avg_time_secs'] if row['avg_time_secs'] is not None else 0.
             }
 
         for variant in all_leaders:
             all_leaders[variant] = dict(sorted(
                 all_leaders[variant].items(),
-                # Sort by the number of successes descending, then average guesses ascending.
-                key=lambda kv: kv[1]['successes'] * 1000000 + (100000 - kv[1]['avg_guesses']),
+                # Sort by:
+                #  1. number of successes descending
+                #  2. average guesses ascending
+                #  3. average time descending
+                key=lambda kv: kv[1]['successes'] * 1000000 + (100000 - kv[1]['avg_guesses']) + kv[1]['avg_time_secs'],
                 reverse=True))
 
         return all_leaders
@@ -116,7 +121,7 @@ class SupabaseStore(_Store):
         pass
 
     def read_user_stats(self, user_id):
-        response = self.client.rpc('read_user_stats', {'uid': user_id})
+        response = self._client.rpc('read_user_stats', {'uid': user_id})
         if response.status_code != 200:
             return None
 
