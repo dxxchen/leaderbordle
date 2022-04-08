@@ -2,12 +2,14 @@ import re
 
 from abc import ABC, abstractmethod
 from common import Result
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, tzinfo
+from zoneinfo import ZoneInfo
 
 
 class VariantDetails:
-    def __init__(self, first_iteration_date, is_timed=False, is_failable=True):
+    def __init__(self, first_iteration_date, has_guesses=True, is_timed=False, is_failable=True):
         self.first_iteration_date = first_iteration_date
+        self.has_guesses = has_guesses
         self.is_timed = is_timed
         self.is_failable = is_failable
 
@@ -277,6 +279,66 @@ class Lewdle(_StandardVariant):
         return re.compile('Lewdle \D+(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
 
 
+class MiniCrossword(_Variant):
+    def __init__(self):
+        self._timezone = ZoneInfo('America/New_York')
+        self.matcher = re.compile('[Mm]ini (?:(?P<date>\d{6}) )?(?:(?P<minutes>\d{1,2}))?:?(?P<seconds>\d{2})')
+
+    def name(self):
+        return 'NYT Mini'
+
+    def url(self):
+        return 'https://www.nytimes.com/crosswords/game/mini'
+
+    def emoji(self):
+        return '▞'
+
+    def info(self):
+        return 'A 5x5 crossword.'
+
+    def details(self):
+        return VariantDetails(
+            datetime(2014, 8, 21, tzinfo=self._timezone),
+            has_guesses=False,
+            is_timed=True,
+            is_failable=False)
+
+    def parse(self, content):
+        match = self.matcher.match(content)
+        if match is None:
+            return None
+
+        # If the date is specified, use it.
+        if match.group('date') is not None:
+            try:
+                date = datetime.strptime(match.group('date'), '%y%m%d')
+                date = datetime.combine(
+                    date.date(),
+                    date.time(),
+                    tzinfo=self._timezone)
+            except ValueError:
+                return None
+        else:
+            date = datetime.now(tz=self._timezone)
+            # The Mini refreshes at 10pm Su-Th and at 6pm Fr-Sa, so increment the day if needed.
+            if ((date.weekday() in [6, 0, 1, 2, 3] and date.hour >= 22)
+                    or (date.weekday() in [4, 5] and date.hour >= 18)):
+                date += timedelta(days=1)
+
+        # The iteration is the number of days since the first iteration plus 1
+        iteration = (date - self.details().first_iteration_date).days + 1
+        if iteration < 1:
+            return None
+
+        success = True # There's no failure for the Mini.
+
+        time_secs = int(match.group('seconds'))
+        if match.group('minutes'):
+            time_secs += int(match.group('minutes')) * 60
+
+        return Result(iteration, True, time_secs=time_secs)
+
+
 class Semantle(_Variant):
     def __init__(self):
         self.first_guess_matcher = re.compile('I got Semantle (?P<iteration>\d+) on my first guess!')
@@ -431,6 +493,7 @@ def get_variants():
         Yeardle(),
         Chrono(),
         Lewdle(),
-        Werdel()]
+        Werdel(),
+        MiniCrossword()]
 
     return {v.name() : v for v in variants}
