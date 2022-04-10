@@ -379,6 +379,26 @@ class Semantle(_Variant):
         return Result(iteration, success, guesses)
 
 
+class Tradle(_StandardVariant):
+    def name(self):
+        return 'Tradle'
+
+    def url(self):
+        return 'https://oec.world/en/tradle/'
+
+    def emoji(self):
+        return '💱'
+
+    def info(self):
+        return 'Guess a country by its exports.'
+
+    def details(self):
+        return VariantDetails(date(2022, 3, 7))
+
+    def _matcher(self):
+        return re.compile('#Tradle \#(?P<iteration>\d+) (?P<guesses>\d+|X)(?P<hard>)/\d')
+
+
 class Werdel(_StandardVariant):
     def _max_guesses(self):
         return 8
@@ -489,11 +509,12 @@ def get_variants():
         Heardle(),
         Framed(),
         Flagle(),
+        MiniCrossword(),
         BTSHeardle(),
         Yeardle(),
         Chrono(),
         Lewdle(),
         Werdel(),
-        MiniCrossword()]
+        Tradle()]
 
     return {v.name() : v for v in variants}
