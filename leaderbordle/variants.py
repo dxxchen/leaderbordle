@@ -282,7 +282,7 @@ class Lewdle(_StandardVariant):
 class MiniCrossword(_Variant):
     def __init__(self):
         self._timezone = ZoneInfo('America/New_York')
-        self.matcher = re.compile('[Mm]ini (?:(?P<date>\d{6}) )?(?:(?P<minutes>\d{1,2}))?:?(?P<seconds>\d{1,2})')
+        self.matcher = re.compile('mini\s+(?:(?P<date>\d{6})\s+)?(?:(?P<minutes>\d{1,2}))?:?(?P<seconds>\d{1,2})', re.IGNORECASE)
 
     def name(self):
         return 'NYT Mini'
